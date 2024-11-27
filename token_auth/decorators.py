@@ -15,14 +15,10 @@ def validate_resource(f):
             apikey = request.data.get("apikey")
             identifier = request.data.get("identifier")
         else:
-            return JsonResponse(
-                {"error": "Missing resource_id, apikey, or identifier."}, status=400
-            )
+            return JsonResponse({"error": "Missing apikey, or identifier."}, status=400)
 
         if not apikey or not identifier:
-            return JsonResponse(
-                {"error": "Missing resource_id, apikey, or identifier."}, status=400
-            )
+            return JsonResponse({"error": "Missing apikey, or identifier."}, status=400)
 
         try:
             resource = Resource.objects.get(api_key=apikey, identifier=identifier)

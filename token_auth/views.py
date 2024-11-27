@@ -6,6 +6,7 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 from .decorators import validate_resource
 from .models import Token, Resource
+from .selectors import get_token_from_headers
 from .serializers import TokenSerializer, ResourceSerializer, RevokeTokenSerializer
 from .throttles import ScopedSettingThrottle
 
@@ -48,6 +49,7 @@ class ValidateTokenView(APIView):
     Validate a token for its validity.
     """
 
+    permission_classes = [IsAuthenticated]
     throttle_classes = [ScopedSettingThrottle]
 
     def post(self, request):
@@ -82,13 +84,12 @@ class RevokeTokenView(APIView):
     """
 
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = [ScopedSettingThrottle]
 
     def post(self, request):
         serializer = RevokeTokenSerializer(
-            data=request.data, context={"request": request}
+            data=request.data, context={"token": get_token_from_headers(request.META)}
         )
-
         if serializer.is_valid():
             token = serializer.validated_data["token"]
             token.revoke()
@@ -96,7 +97,9 @@ class RevokeTokenView(APIView):
                 {"message": "Token revoked successfully."}, status=status.HTTP_200_OK
             )
 
-        return Response({"error": "Invalid token."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class ResourceView(APIView):

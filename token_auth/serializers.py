@@ -3,6 +3,8 @@ from rest_framework import serializers
 from .models import Token, Resource
 from django.utils.timezone import now, timedelta
 
+from .selectors import get_token_from_headers
+
 
 class TokenSerializer(serializers.ModelSerializer):
     expires_at = serializers.CharField(read_only=True)
@@ -40,11 +42,13 @@ class RevokeTokenSerializer(serializers.Serializer):
     apikey = serializers.CharField(required=True)
     identifier = serializers.CharField(required=True)
 
+    class Meta:
+        fields = ("apikey", "identifier")
+
     def validate(self, data):
         apikey = data.get("apikey")
         identifier = data.get("identifier")
-        token = self.context.get("request").META.get("HTTP_AUTHORIZATION")
-        token_value = token[7:]
+        token_value = self.context.get("token")
         try:
             token_instance = Token.objects.get(token=token_value, is_revoked=False)
         except Token.DoesNotExist:

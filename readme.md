@@ -62,6 +62,7 @@ curl -X POST http://localhost:8000/api/v1/token-auth/token/generate/ \
 Curl Example:
 ```bash
 curl -X POST http://localhost:8000/api/v1/token-auth/token/validate/ \
+-H "Authorization: Bearer {YOUR_TOKEN}" \
 -d "token={YOUR_TOKEN}" \
 -H "Content-Type: application/x-www-form-urlencoded"
 ```

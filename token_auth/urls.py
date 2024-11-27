@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import GenerateTokenView, ValidateTokenView, RevokeTokenView, ResourceView
 
+app_name = "token_auth"
+
 urlpatterns = [
     path("resource/", ResourceView.as_view(), name="get_resource"),
     path("token/generate/", GenerateTokenView.as_view(), name="generate_token"),
